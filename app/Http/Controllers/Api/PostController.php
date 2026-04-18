@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Post;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Facades\Gate;
 
 class PostController extends Controller
 {
@@ -102,11 +103,10 @@ class PostController extends Controller
         ], 201);
     }
 
-    public function updateStatus(Request $request, Post $post): JsonResponse
+public function updateStatus(Request $request, Post $post): JsonResponse
     {
-        if ($request->user()->id !== $post->user_id) {
-            return response()->json(['message' => 'Akses ditolak.'], 403);
-        }
+        // 1. Panggil Satpam (Otomatis melempar 403 jika bukan pemiliknya)
+        Gate::authorize('update', $post);
 
         $validated = $request->validate([
             'status' => ['required', 'in:open,in_progress,completed'],
@@ -117,6 +117,19 @@ class PostController extends Controller
         return response()->json([
             'message' => "Status postingan diubah menjadi '{$validated['status']}'",
             'data' => $post
+        ]);
+    }
+
+    public function destroy(Request $request, Post $post): JsonResponse
+    {
+        // 1. Panggil Satpam (Otomatis melempar 403 jika bukan pemiliknya)
+        Gate::authorize('delete', $post);
+
+        // 2. Eksekusi Hapus dari database
+        $post->delete();
+
+        return response()->json([
+            'message' => 'Postingan barter berhasil dihapus permanen.'
         ]);
     }
 
@@ -141,23 +154,7 @@ class PostController extends Controller
     /**
      * Menghapus postingan barter (Hanya bisa dilakukan oleh pemilik postingan)
      */
-    public function destroy(Request $request, Post $post): JsonResponse
-    {
-        // 1. Keamanan: Pastikan yang menghapus adalah si pembuat postingan
-        if ($request->user()->id !== $post->user_id) {
-            return response()->json([
-                'message' => 'Akses ditolak. Kamu tidak bisa menghapus postingan milik orang lain.'
-            ], 403);
-        }
 
-        // 2. Eksekusi Hapus dari database
-        $post->delete();
-
-        return response()->json([
-            'message' => 'Postingan barter berhasil dihapus permanen.'
-        ]);
-        // Catatan: Status code default-nya 200 OK.
-    }
 
     public function recommendations(Request $request): JsonResponse
     {

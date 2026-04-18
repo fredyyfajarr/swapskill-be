@@ -89,17 +89,25 @@ class ProfileController extends Controller
     /**
      * Update Data Dasar Profil (opsional untuk masa depan)
      */
-    public function update(Request $request): JsonResponse
+   public function update(Request $request): JsonResponse
     {
+        $user = $request->user();
+
         $request->validate([
-            'name' => 'sometimes|string|max:255',
-            'whatsapp_number' => 'sometimes|string|max:20',
+            'name' => 'required|string|max:255',
+            'nim'  => 'required|string|max:20|unique:users,nim,' . $user->id,
+            'whatsapp_number' => 'required|string|max:15',
         ]);
 
-        $request->user()->update($request->only('name', 'whatsapp_number'));
+        $user->update([
+            'name' => $request->name,
+            'nim'  => $request->nim,
+            'whatsapp_number' => $request->whatsapp_number,
+        ]);
 
         return response()->json([
-            'message' => 'Profil berhasil diupdate'
+            'message' => 'Profil berhasil diperbarui!',
+            'data' => $user
         ]);
     }
 }

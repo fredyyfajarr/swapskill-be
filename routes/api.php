@@ -36,6 +36,9 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::post('/profile/skills', [ProfileController::class, 'addSkill']);
     Route::delete('/profile/skills/{skillId}', [ProfileController::class, 'removeSkill']);
 
+    // --- RUTE STATISTIK PERSONAL ---
+    Route::get('/profile/stats', [\App\Http\Controllers\Api\AnalyticController::class, 'getPersonalStats']);
+
     // ---> INI DIA RUTE PROFIL PUBLIKNYA <---
     Route::get('/users/{id}/profile', [ProfileController::class, 'showPublic']);
 
@@ -56,7 +59,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
 
     // --- RUTE POSTINGAN (KHUSUS VERIFIED USER) ---
     Route::middleware([EnsureUserIsVerified::class])->group(function () {
-        Route::post('/posts', [PostController::class, 'store']);
+        Route::post('/posts', [PostController::class, 'store'])->middleware('throttle:5,1'); // Batasi 5 postingan per menit
         Route::get('/posts/recommendations', [PostController::class, 'recommendations']);
         Route::post('/posts/{post}/whatsapp', [PostController::class, 'generateWhatsAppLink']);
         Route::patch('/posts/{post}/status', [PostController::class, 'updateStatus']);
