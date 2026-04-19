@@ -5,6 +5,8 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Validation\Rules\Password;
 use App\Models\User;
 use App\Models\Skill;
 
@@ -108,6 +110,27 @@ class ProfileController extends Controller
         return response()->json([
             'message' => 'Profil berhasil diperbarui!',
             'data' => $user
+        ]);
+    }
+
+/**
+ * Memperbarui Password User
+ */
+    public  function updatePassword(Request $request): JsonResponse
+    {
+        // Validasi input
+        $request->validate([
+            'current_password' => ['required', 'current_password'], // Memeriksa apakah password lama benar
+            'new_password' => ['required', 'confirmed', Password::defaults()],
+        ]);
+
+        // Update password di database
+        $request->user()->update([
+            'password' => Hash::make($request->new_password),
+        ]);
+
+        return response()->json([
+            'message' => 'Password berhasil diperbarui!',
         ]);
     }
 }

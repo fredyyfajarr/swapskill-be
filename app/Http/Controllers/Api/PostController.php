@@ -93,7 +93,7 @@ class PostController extends Controller
         $post = $request->user()->posts()->create([
             'needed_skill_id' => $neededSkill->id,
             'offered_skill_id' => $offeredSkill->id,
-            'description' => $validated['description'],
+            'description' => strip_tags($validated['description']),
             'status' => 'open'
         ]);
 

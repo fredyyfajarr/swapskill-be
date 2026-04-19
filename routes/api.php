@@ -15,7 +15,7 @@ use App\Models\Skill;
 
 // --- RUTE PUBLIK (Tanpa Login) ---
 Route::post('/register', [RegisteredUserController::class, 'store']);
-Route::post('/login', [LoginController::class, 'store']);
+Route::post('/login', [LoginController::class, 'store'])->middleware('throttle:5,1'); // Batasi 5 percobaan login per menit
 
 // Rute untuk mengambil daftar keahlian (Untuk Dropdown Frontend)
 Route::get('/skills', function () {
@@ -33,8 +33,10 @@ Route::middleware(['auth:sanctum'])->group(function () {
     // --- RUTE PROFIL SENDIRI ---
     Route::get('/profile', [ProfileController::class, 'me']);
     Route::put('/profile', [ProfileController::class, 'update']);
+    Route::put('/profile/password', [ProfileController::class, 'updatePassword'])->middleware('throttle:5,1'); // Batasi 3 percobaan ganti password per menit
     Route::post('/profile/skills', [ProfileController::class, 'addSkill']);
     Route::delete('/profile/skills/{skillId}', [ProfileController::class, 'removeSkill']);
+
 
     // --- RUTE STATISTIK PERSONAL ---
     Route::get('/profile/stats', [\App\Http\Controllers\Api\AnalyticController::class, 'getPersonalStats']);

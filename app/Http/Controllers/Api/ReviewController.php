@@ -46,7 +46,7 @@ class ReviewController extends Controller
             'reviewer_id' => $reviewer->id,
             'reviewee_id' => $request->reviewee_id,
             'rating'      => $request->rating,
-            'comment'     => $request->comment
+            'comment'     => strip_tags($request->comment)
         ]);
 
         // --- TAMBAHKAN LOGIKA NOTIFIKASI DI SINI ---
