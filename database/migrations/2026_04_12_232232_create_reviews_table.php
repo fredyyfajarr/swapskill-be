@@ -10,20 +10,13 @@ return new class extends Migration
     {
         Schema::create('reviews', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('post_id')->constrained()->cascadeOnDelete();
-
-            // Siapa yang memberi ulasan
             $table->foreignId('reviewer_id')->constrained('users')->cascadeOnDelete();
-
-            // Siapa yang diulas (teman barternya)
             $table->foreignId('reviewee_id')->constrained('users')->cascadeOnDelete();
-
-            $table->unsignedTinyInteger('rating'); // Bintang 1 sampai 5
-            $table->text('comment'); // Komentar ulasan
+            $table->unsignedTinyInteger('rating');
+            $table->text('comment');
             $table->timestamps();
 
-            // Mencegah 1 orang memberi ulasan berkali-kali di postingan yang sama
-            $table->unique(['post_id', 'reviewer_id']);
+            $table->unique(['reviewer_id', 'reviewee_id']);
         });
     }
 
