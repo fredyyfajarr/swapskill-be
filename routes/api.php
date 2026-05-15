@@ -9,21 +9,16 @@ use App\Http\Controllers\Api\PostController;
 use App\Http\Controllers\Api\ReviewController;
 use App\Http\Controllers\Api\ProfileController;
 use App\Http\Controllers\Api\BookmarkController;
+use App\Http\Controllers\Api\SkillController;
 
 use App\Http\Middleware\EnsureUserIsVerified;
-use App\Models\Skill;
 
 // --- RUTE PUBLIK (Tanpa Login) ---
 Route::post('/register', [RegisteredUserController::class, 'store']);
 Route::post('/login', [LoginController::class, 'store'])->middleware('throttle:5,1'); // Batasi 5 percobaan login per menit
 
 // Rute untuk mengambil daftar keahlian (Untuk Dropdown Frontend)
-Route::get('/skills', function () {
-    return response()->json([
-        'message' => 'Berhasil mengambil daftar skill',
-        'data' => Skill::orderBy('name', 'asc')->get()
-    ]);
-});
+Route::get('/skills', [SkillController::class, 'index']);
 
 // --- RUTE PRIVATE (Harus Login) ---
 Route::middleware(['auth:sanctum'])->group(function () {
