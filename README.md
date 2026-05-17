@@ -1,58 +1,201 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# SwapSkill Backend
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+Backend API untuk SwapSkill, aplikasi barter keahlian mahasiswa. Backend ini menangani autentikasi, profil mahasiswa, skill, tawaran barter, bookmark, review, notifikasi, statistik personal, dan panel admin.
 
-## About Laravel
+## Tech Stack
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+- PHP 8.3+
+- Laravel 13
+- Laravel Sanctum untuk token API
+- Filament 5 untuk admin panel
+- MySQL sebagai database utama
+- PHPUnit untuk test
+- Laravel Pint untuk formatting
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+## Fitur Utama
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+- Register dan login mahasiswa menggunakan token Sanctum.
+- Verifikasi user sebelum mahasiswa bisa membuat tawaran barter.
+- CRUD profil, skill portofolio, dan update password.
+- Skill board dengan search, filter skill, sort, pagination, dan bookmark.
+- Rekomendasi barter berdasarkan skill yang dimiliki dan dibutuhkan user.
+- Review antar user dengan proteksi agar tidak review diri sendiri atau spam review user yang sama.
+- Notifikasi untuk bookmark dan review.
+- Admin panel Filament untuk mengelola data.
 
-## Learning Laravel
+## Struktur Arsitektur
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+Project mulai diarahkan ke Clean Architecture pragmatis untuk Laravel:
 
-In addition, [Laracasts](https://laracasts.com) contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
-
-You can also watch bite-sized lessons with real-world projects on [Laravel Learn](https://laravel.com/learn), where you will be guided through building a Laravel application from scratch while learning PHP fundamentals.
-
-## Agentic Development
-
-Laravel's predictable structure and conventions make it ideal for AI coding agents like Claude Code, Cursor, and GitHub Copilot. Install [Laravel Boost](https://laravel.com/docs/ai) to supercharge your AI workflow:
-
-```bash
-composer require laravel/boost --dev
-
-php artisan boost:install
+```text
+app/
+├── Application/          # Use case dan DTO alur bisnis
+├── Domain/               # Contract/interface domain
+├── Infrastructure/       # Implementasi persistence Eloquent
+├── Http/                 # Controller, middleware, request
+├── Models/               # Eloquent model
+├── Policies/             # Authorization policy
+└── Providers/            # Service binding dan konfigurasi app
 ```
 
-Boost provides your agent 15+ tools and skills that help agents build Laravel applications while following best practices.
+Pedoman singkat:
 
-## Contributing
+- Controller hanya menerima request, validasi, authorization, dan response.
+- Business flow diletakkan di `Application/*/UseCases`.
+- Contract repository diletakkan di `Domain/*/Contracts`.
+- Query Eloquent diletakkan di `Infrastructure/Persistence`.
+- Model Eloquent tetap dipakai sesuai gaya Laravel, tidak dipaksa menjadi pure entity.
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+## Instalasi Lokal
 
-## Code of Conduct
+Clone repo:
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+```bash
+git clone https://github.com/fredyyfajarr/swapskill-be.git
+cd swapskill-be
+```
 
-## Security Vulnerabilities
+Install dependency:
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+```bash
+composer install
+```
 
-## License
+Buat file environment:
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+```bash
+cp .env.example .env
+php artisan key:generate
+```
+
+Untuk Windows PowerShell:
+
+```powershell
+copy .env.example .env
+php artisan key:generate
+```
+
+Atur koneksi database di `.env`:
+
+```env
+APP_URL=http://127.0.0.1:8000
+FRONTEND_URL=http://localhost:3000
+
+DB_CONNECTION=mysql
+DB_HOST=127.0.0.1
+DB_PORT=3306
+DB_DATABASE=swapskill_db
+DB_USERNAME=root
+DB_PASSWORD=
+```
+
+Jalankan migration dan seeder:
+
+```bash
+php artisan migrate:fresh --seed
+```
+
+Jalankan server:
+
+```bash
+php artisan serve
+```
+
+Backend default berjalan di:
+
+```text
+http://127.0.0.1:8000
+```
+
+## Akun Test Seeder
+
+Seeder membuat akun test verified:
+
+```text
+email: test@swapskill.test
+password: password
+```
+
+Seeder juga membuat data skill, 20 user dummy verified, dan 50 tawaran barter dummy.
+
+## Endpoint API Utama
+
+Public:
+
+```text
+POST /api/register
+POST /api/login
+GET  /api/skills
+```
+
+Private, membutuhkan token Sanctum:
+
+```text
+POST   /api/logout
+GET    /api/profile
+PUT    /api/profile
+PUT    /api/profile/password
+POST   /api/profile/skills
+DELETE /api/profile/skills/{skillId}
+GET    /api/profile/stats
+GET    /api/users/{id}/profile
+GET    /api/users/{id}/reviews
+POST   /api/reviews
+GET    /api/bookmarks
+POST   /api/posts/{post}/bookmark
+GET    /api/notifications
+POST   /api/notifications/read
+DELETE /api/notifications/clear
+GET    /api/posts
+```
+
+Khusus user verified:
+
+```text
+POST   /api/posts
+GET    /api/posts/recommendations
+POST   /api/posts/{post}/whatsapp
+PATCH  /api/posts/{post}/status
+DELETE /api/posts/{post}
+```
+
+## Integrasi Frontend
+
+Frontend menggunakan `NEXT_PUBLIC_API_URL` yang mengarah ke backend API:
+
+```env
+NEXT_PUBLIC_API_URL=http://127.0.0.1:8000/api
+```
+
+Login mengembalikan token. Frontend menyimpan token dan mengirim header:
+
+```text
+Authorization: Bearer <token>
+```
+
+## Admin Panel
+
+Filament tersedia sebagai admin panel Laravel. Jalankan backend, lalu akses route panel sesuai konfigurasi Filament di project.
+
+## Perintah Development
+
+```bash
+php artisan serve
+php artisan route:list --path=api
+php artisan test
+vendor/bin/pint
+```
+
+Jika test memakai SQLite in-memory, pastikan extension PHP `pdo_sqlite` aktif.
+
+## Catatan Migration
+
+Tabel `reviews` hanya boleh dibuat oleh satu migration. Jika muncul error `Table 'reviews' already exists`, pastikan tidak ada migration duplikat yang sama-sama menjalankan `Schema::create('reviews')`.
+
+## Repository Terkait
+
+Frontend SwapSkill:
+
+```text
+https://github.com/fredyyfajarr/swapskill-fe
+```
