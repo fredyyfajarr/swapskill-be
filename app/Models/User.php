@@ -1,6 +1,8 @@
 <?php
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Attributes\Fillable;
+use Illuminate\Database\Eloquent\Attributes\Hidden;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -10,25 +12,23 @@ use Laravel\Sanctum\HasApiTokens;
 
 use App\Models\Post;
 
+#[Fillable([
+    'name',
+    'email',
+    'password',
+    'nim',
+    'whatsapp_number',
+    'ktm_path',
+    'role',
+    'is_verified'
+])]
+#[Hidden([
+    'password',
+    'remember_token',
+])]
 class User extends Authenticatable
 {
     use HasApiTokens, HasFactory, Notifiable;
-
-    protected $fillable = [
-        'name',
-        'email',
-        'password',
-        'nim',
-        'whatsapp_number',
-        'ktm_path',
-        'role',
-        'is_verified'
-    ];
-
-    protected $hidden = [
-        'password',
-        'remember_token',
-    ];
 
     protected function casts(): array
     {
@@ -84,5 +84,25 @@ class User extends Authenticatable
     public function userNotifications()
     {
         return $this->hasMany(\App\Models\Notification::class);
+    }
+
+    public function sentMessages()
+    {
+        return $this->hasMany(\App\Models\Message::class, 'sender_id');
+    }
+
+    public function receivedMessages()
+    {
+        return $this->hasMany(\App\Models\Message::class, 'receiver_id');
+    }
+
+    public function badges()
+    {
+        return $this->belongsToMany(\App\Models\Badge::class);
+    }
+
+    public function portfolios()
+    {
+        return $this->hasMany(\App\Models\Portfolio::class);
     }
 }

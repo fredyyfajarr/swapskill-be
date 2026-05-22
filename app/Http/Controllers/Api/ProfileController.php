@@ -21,7 +21,9 @@ class ProfileController extends Controller
         $user = $request->user()->load([
             'skills',
             'historyPosts.neededSkill',
-            'historyPosts.offeredSkill'
+            'historyPosts.offeredSkill',
+            'badges',
+            'portfolios'
         ])
         ->loadCount('receivedReviews')
         ->loadAvg('receivedReviews', 'rating');
@@ -44,7 +46,9 @@ class ProfileController extends Controller
                 $query->where('status', 'open')->latest();
             },
             'historyPosts.neededSkill',
-            'historyPosts.offeredSkill'
+            'historyPosts.offeredSkill',
+            'badges',
+            'portfolios'
         ])
         ->withCount('receivedReviews')
         ->withAvg('receivedReviews', 'rating')

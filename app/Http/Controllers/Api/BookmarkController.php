@@ -46,15 +46,15 @@ class BookmarkController extends Controller
                 // Pastikan relasi neededSkill sudah ter-load untuk mengambil nama skillnya
                 $post->load('neededSkill', 'offeredSkill');
 
-                \App\Models\Notification::create([
-                    'user_id' => $post->user_id, // Penerima notifikasi (pemilik postingan)
-                    'type'    => 'bookmark',
-                    'data'    => [
+                \App\Jobs\SendNotificationJob::dispatch(
+                    $post->user_id,
+                    'bookmark',
+                    [
                         'sender_name' => $user->name, // Nama yang melakukan bookmark
                         'post_title'  => $post->neededSkill->name . ' ↔ ' . $post->offeredSkill->name, // Ringkasan tawaran
                         'message'     => 'baru saja menyimpan tawaranmu!'
                     ]
-                ]);
+                );
             }
             // -------------------------------------------
 

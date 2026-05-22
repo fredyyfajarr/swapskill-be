@@ -50,15 +50,15 @@ class ReviewController extends Controller
         ]);
 
         // --- TAMBAHKAN LOGIKA NOTIFIKASI DI SINI ---
-        \App\Models\Notification::create([
-            'user_id' => $request->reviewee_id, // Penerima notifikasi (yang di-review)
-            'type'    => 'review',
-            'data'    => [
+        \App\Jobs\SendNotificationJob::dispatch(
+            $request->reviewee_id,
+            'review',
+            [
                 'sender_name' => $reviewer->name, // Nama yang memberikan review
                 'rating'      => $request->rating,
                 'message'     => 'memberikan ulasan ⭐' . $request->rating . ' untukmu!'
             ]
-        ]);
+        );
         // -------------------------------------------
 
         return response()->json([

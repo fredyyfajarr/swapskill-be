@@ -2,21 +2,21 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
+#[Fillable([
+    'user_id',
+    'needed_skill_id',
+    'offered_skill_id',
+    'description',
+    'status'
+])]
 class Post extends Model
 {
     use HasFactory;
-
-    protected $fillable = [
-        'user_id',
-        'needed_skill_id',
-        'offered_skill_id',
-        'description',
-        'status'
-    ];
 
     // Relasi ke pembuat postingan
     public function user(): BelongsTo
