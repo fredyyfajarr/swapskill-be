@@ -14,7 +14,7 @@ class DatabaseSeeder extends Seeder
     public function run(): void
     {
         // Akun Admin
-        User::firstOrCreate(
+        $admin = User::firstOrCreate(
             ['email' => 'admin@swapskill.com'],
             [
                 'name' => 'Administrator',
@@ -27,7 +27,7 @@ class DatabaseSeeder extends Seeder
         );
 
         // Akun Student Terverifikasi
-        User::firstOrCreate(
+        $verifiedStudent = User::firstOrCreate(
             ['email' => 'student.verified@swapskill.com'],
             [
                 'name' => 'Budi Santoso',
@@ -40,7 +40,7 @@ class DatabaseSeeder extends Seeder
         );
 
         // Akun Student Belum Terverifikasi
-        User::firstOrCreate(
+        $unverifiedStudent = User::firstOrCreate(
             ['email' => 'student.unverified@swapskill.com'],
             [
                 'name' => 'Andi Wijaya',
@@ -51,5 +51,30 @@ class DatabaseSeeder extends Seeder
                 'is_verified' => false,
             ]
         );
+
+        $this->call([
+            SkillSeeder::class,
+        ]);
+
+        $skills = \App\Models\Skill::all();
+        if ($skills->count() >= 2) {
+            \App\Models\Post::firstOrCreate(
+                ['user_id' => $verifiedStudent->id, 'description' => 'Saya butuh bantuan belajar React JS, saya bisa ngajarin UI/UX Design Figma.'],
+                [
+                    'needed_skill_id' => $skills[0]->id,
+                    'offered_skill_id' => $skills[1]->id,
+                    'status' => 'open'
+                ]
+            );
+
+            \App\Models\Post::firstOrCreate(
+                ['user_id' => $admin->id, 'description' => 'Mencari partner untuk belajar bahasa Inggris percakapan.'],
+                [
+                    'needed_skill_id' => $skills[1]->id,
+                    'offered_skill_id' => $skills[0]->id,
+                    'status' => 'open'
+                ]
+            );
+        }
     }
 }
