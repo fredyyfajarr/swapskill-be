@@ -81,21 +81,6 @@ class PostController extends Controller
         ]);
     }
 
-    public function generateWhatsAppLink(Post $post, Request $request, GenerateWhatsAppLink $generateWhatsAppLink): JsonResponse
-    {
-        $owner = $post->user;
-        $bidder = $request->user();
-
-        if ($owner->id === $bidder->id) {
-            return response()->json(['message' => 'Tidak bisa menawar postingan sendiri.'], 403);
-        }
-
-        return response()->json([
-            'message' => 'Link WhatsApp berhasil dibuat.',
-            'whatsapp_url' => $generateWhatsAppLink($post, $bidder)
-        ]);
-    }
-
     public function recommendations(Request $request, RecommendPosts $recommendPosts): JsonResponse
     {
         return response()->json([
