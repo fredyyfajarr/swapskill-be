@@ -2,31 +2,54 @@
 
 namespace Database\Seeders;
 
-use App\Models\Post;
 use App\Models\User;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
 
 class DatabaseSeeder extends Seeder
 {
+    /**
+     * Seed the application's database.
+     */
     public function run(): void
     {
-        $this->call(SkillSeeder::class);
+        // Akun Admin
+        User::firstOrCreate(
+            ['email' => 'admin@swapskill.com'],
+            [
+                'name' => 'Administrator',
+                'password' => Hash::make('password123'),
+                'nim' => 'ADMIN001',
+                'whatsapp_number' => '081234567890',
+                'role' => 'admin',
+                'is_verified' => true,
+            ]
+        );
 
-        User::create([
-            'name' => 'Test User',
-            'email' => 'test@swapskill.test',
-            'password' => Hash::make('password'),
-            'nim' => '123456789',
-            'whatsapp_number' => '6281234567890',
-            'role' => 'student',
-            'is_verified' => true,
-        ]);
+        // Akun Student Terverifikasi
+        User::firstOrCreate(
+            ['email' => 'student.verified@swapskill.com'],
+            [
+                'name' => 'Budi Santoso',
+                'password' => Hash::make('password123'),
+                'nim' => '1301201234',
+                'whatsapp_number' => '081298765432',
+                'role' => 'student',
+                'is_verified' => true,
+            ]
+        );
 
-        User::factory(20)->create([
-            'is_verified' => true,
-        ]);
-
-        Post::factory(50)->create();
+        // Akun Student Belum Terverifikasi
+        User::firstOrCreate(
+            ['email' => 'student.unverified@swapskill.com'],
+            [
+                'name' => 'Andi Wijaya',
+                'password' => Hash::make('password123'),
+                'nim' => '1301201235',
+                'whatsapp_number' => '081298765433',
+                'role' => 'student',
+                'is_verified' => false,
+            ]
+        );
     }
 }
