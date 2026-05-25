@@ -20,6 +20,8 @@ interface PostRepository
 
     public function createForUser(User $user, Skill $neededSkill, Skill $offeredSkill, string $description): Post;
 
+    public function update(Post $post, Skill $neededSkill, Skill $offeredSkill, string $description): Post;
+
     public function updateStatus(Post $post, string $status): Post;
 
     public function delete(Post $post): void;

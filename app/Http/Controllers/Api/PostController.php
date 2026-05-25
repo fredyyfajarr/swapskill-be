@@ -9,6 +9,7 @@ use App\Application\Posts\UseCases\DeletePost;
 use App\Application\Posts\UseCases\GenerateWhatsAppLink;
 use App\Application\Posts\UseCases\ListOpenPosts;
 use App\Application\Posts\UseCases\RecommendPosts;
+use App\Application\Posts\UseCases\UpdatePost;
 use App\Application\Posts\UseCases\UpdatePostStatus;
 use App\Http\Controllers\Controller;
 use App\Models\Post;
@@ -67,6 +68,28 @@ class PostController extends Controller
 
         return response()->json([
             'message' => "Status postingan diubah menjadi '{$validated['status']}'",
+            'data' => $post
+        ]);
+    }
+
+    public function update(Request $request, Post $post, UpdatePost $updatePost): JsonResponse
+    {
+        Gate::authorize('update', $post);
+
+        $validated = $request->validate([
+            'needed_skill' => ['required', 'string', 'max:100'],
+            'offered_skill' => ['required', 'string', 'max:100'],
+            'description' => ['required', 'string', 'max:1000'],
+        ]);
+
+        $post = $updatePost($post, new CreatePostInput(
+            neededSkill: $validated['needed_skill'],
+            offeredSkill: $validated['offered_skill'],
+            description: $validated['description'],
+        ));
+
+        return response()->json([
+            'message' => 'Tawaran berhasil diperbarui.',
             'data' => $post
         ]);
     }

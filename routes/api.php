@@ -84,6 +84,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::middleware([EnsureUserIsVerified::class])->group(function () {
         Route::post('/posts', [PostController::class, 'store'])->middleware('throttle:5,1');
         Route::get('/posts/recommendations', [PostController::class, 'recommendations']);
+        Route::put('/posts/{post}', [PostController::class, 'update']);
         Route::patch('/posts/{post}/status', [PostController::class, 'updateStatus']);
         Route::delete('/posts/{post}', [PostController::class, 'destroy']);
     });
