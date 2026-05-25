@@ -35,6 +35,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::post('/2fa/disable', [TwoFactorController::class, 'disable']);
 
     // --- RUTE PROFIL SENDIRI ---
+    Route::get('/me', [ProfileController::class, 'current']);
     Route::get('/profile', [ProfileController::class, 'me']);
     Route::put('/profile', [ProfileController::class, 'update']);
     Route::put('/profile/password', [ProfileController::class, 'updatePassword'])->middleware('throttle:5,1');
@@ -85,7 +86,6 @@ Route::middleware(['auth:sanctum'])->group(function () {
         Route::post('/posts', [PostController::class, 'store'])->middleware('throttle:5,1');
         Route::get('/posts/recommendations', [PostController::class, 'recommendations']);
         Route::put('/posts/{post}', [PostController::class, 'update']);
-        Route::patch('/posts/{post}/status', [PostController::class, 'updateStatus']);
         Route::delete('/posts/{post}', [PostController::class, 'destroy']);
     });
 });

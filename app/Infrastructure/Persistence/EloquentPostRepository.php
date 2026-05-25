@@ -74,13 +74,6 @@ final class EloquentPostRepository implements PostRepository
         return $post->fresh(['user:id,name,whatsapp_number', 'neededSkill:id,name', 'offeredSkill:id,name']);
     }
 
-    public function updateStatus(Post $post, string $status): Post
-    {
-        $post->update(['status' => $status]);
-
-        return $post;
-    }
-
     public function delete(Post $post): void
     {
         $post->delete();

@@ -22,8 +22,6 @@ interface PostRepository
 
     public function update(Post $post, Skill $neededSkill, Skill $offeredSkill, string $description): Post;
 
-    public function updateStatus(Post $post, string $status): Post;
-
     public function delete(Post $post): void;
 
     public function matchingRecommendationsFor(User $user, int $limit = 5): Collection;

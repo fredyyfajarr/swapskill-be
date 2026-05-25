@@ -10,6 +10,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 #[Fillable([
     'reviewer_id',
     'reviewee_id',
+    'barter_request_id',
     'rating',
     'comment'
 ])]
@@ -27,5 +28,10 @@ class Review extends Model
     public function reviewee(): BelongsTo
     {
         return $this->belongsTo(User::class, 'reviewee_id');
+    }
+
+    public function barterRequest(): BelongsTo
+    {
+        return $this->belongsTo(BarterRequest::class);
     }
 }
