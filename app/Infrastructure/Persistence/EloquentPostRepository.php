@@ -86,8 +86,24 @@ final class EloquentPostRepository implements PostRepository
         return Post::with(['user:id,name,whatsapp_number', 'neededSkill', 'offeredSkill'])
             ->where('user_id', '!=', $user->id)
             ->where('status', 'open')
-            ->whereIn('offered_skill_id', $myNeeds)
-            ->whereIn('needed_skill_id', $mySkills)
+            ->where(function ($query) use ($mySkills, $myNeeds) {
+                // Return post if:
+                // 1. Post needs a skill I have
+                // OR 2. Post offers a skill I need
+                if (!empty($mySkills)) {
+                    $query->orWhereIn('needed_skill_id', $mySkills);
+                }
+                
+                if (!empty($myNeeds)) {
+                    $query->orWhereIn('offered_skill_id', $myNeeds);
+                }
+
+                // If user has NO skills and NO needs, this will fail and return 0 results
+                // which is intended. They must have at least one to get recommendations.
+                if (empty($mySkills) && empty($myNeeds)) {
+                    $query->whereRaw('1 = 0');
+                }
+            })
             ->latest()
             ->take($limit)
             ->get();
