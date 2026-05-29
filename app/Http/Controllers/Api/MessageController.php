@@ -18,12 +18,25 @@ class MessageController extends Controller
     {
         $userId = $request->user()->id;
 
-        // Fetch distinct user IDs that the current user has exchanged messages with
-        $contacts = User::whereHas('sentMessages', function ($query) use ($userId) {
-            $query->where('receiver_id', $userId);
-        })->orWhereHas('receivedMessages', function ($query) use ($userId) {
-            $query->where('sender_id', $userId);
-        })->get(['id', 'name', 'avatar_path']); // Or adjust select fields as needed
+        $contactIds = Message::query()
+            ->where('sender_id', $userId)
+            ->pluck('receiver_id')
+            ->merge(
+                Message::query()
+                    ->where('receiver_id', $userId)
+                    ->pluck('sender_id')
+            )
+            ->unique()
+            ->values();
+
+        if ($contactIds->isEmpty()) {
+            return response()->json([
+                'message' => 'Belum ada kontak obrolan.',
+                'data' => [],
+            ]);
+        }
+
+        $contacts = User::whereIn('id', $contactIds)->get(['id', 'name']);
 
         return response()->json([
             'message' => 'Berhasil mengambil daftar kontak obrolan.',

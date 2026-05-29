@@ -63,11 +63,15 @@ final class EloquentPostRepository implements PostRepository
         ]);
     }
 
-    public function updateStatus(Post $post, string $status): Post
+    public function update(Post $post, Skill $neededSkill, Skill $offeredSkill, string $description): Post
     {
-        $post->update(['status' => $status]);
+        $post->update([
+            'needed_skill_id' => $neededSkill->id,
+            'offered_skill_id' => $offeredSkill->id,
+            'description' => $description,
+        ]);
 
-        return $post;
+        return $post->fresh(['user:id,name,whatsapp_number', 'neededSkill:id,name', 'offeredSkill:id,name']);
     }
 
     public function delete(Post $post): void

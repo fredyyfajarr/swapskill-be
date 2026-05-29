@@ -6,12 +6,31 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Validation\Rules\Password;
 use App\Models\User;
 use App\Models\Skill;
 
 class ProfileController extends Controller
 {
+    public function current(Request $request): JsonResponse
+    {
+        $user = $request->user();
+
+        return response()->json([
+            'message' => 'Berhasil mengambil data user.',
+            'data' => [
+                'id' => $user->id,
+                'name' => $user->name,
+                'email' => $user->email,
+                'nim' => $user->nim,
+                'role' => $user->role,
+                'is_verified' => $user->is_verified,
+                'whatsapp_number' => $user->whatsapp_number,
+            ],
+        ]);
+    }
+
     /**
      * Memuat Profil Sendiri (Tab: Tawaran Saya & Portfolio)
      */
@@ -19,11 +38,14 @@ class ProfileController extends Controller
     {
         // Tarik data user login + skill + history posts + kalkulasi ulasan
         $user = $request->user()->load([
-            'skills',
-            'historyPosts.neededSkill',
-            'historyPosts.offeredSkill',
-            'badges',
-            'portfolios'
+            'skills:id,name,category',
+            'historyPosts' => function ($query) {
+                $query
+                    ->select('id', 'user_id', 'needed_skill_id', 'offered_skill_id', 'description', 'status', 'created_at')
+                    ->latest();
+            },
+            'historyPosts.neededSkill:id,name',
+            'historyPosts.offeredSkill:id,name',
         ])
         ->loadCount('receivedReviews')
         ->loadAvg('receivedReviews', 'rating');
@@ -39,16 +61,18 @@ class ProfileController extends Controller
      */
     public function showPublic($id): JsonResponse
     {
-        $user = User::with([
-            'skills',
-            // Hanya tampilkan tawaran yang masih 'open' di profil publik
-            'historyPosts' => function($query) {
-                $query->where('status', 'open')->latest();
+        $user = User::query()
+        ->select('id', 'name', 'nim', 'whatsapp_number', 'created_at')
+        ->with([
+            'skills:id,name,category',
+            'historyPosts' => function ($query) {
+                $query
+                    ->select('id', 'user_id', 'needed_skill_id', 'offered_skill_id', 'description', 'status', 'created_at')
+                    ->where('status', 'open')
+                    ->latest();
             },
-            'historyPosts.neededSkill',
-            'historyPosts.offeredSkill',
-            'badges',
-            'portfolios'
+            'historyPosts.neededSkill:id,name',
+            'historyPosts.offeredSkill:id,name',
         ])
         ->withCount('receivedReviews')
         ->withAvg('receivedReviews', 'rating')
@@ -70,6 +94,7 @@ class ProfileController extends Controller
 
         // Cari skill di database, kalau belum ada, buatkan baru
         $skill = Skill::firstOrCreate(['name' => strtolower(trim($request->skill))]);
+        Cache::forget('skills.alphabetical');
 
         // Masukkan ke portofolio user tanpa menghapus yang lama
         $user->skills()->syncWithoutDetaching([$skill->id]);

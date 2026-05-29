@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Auth;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\URL;
 use App\Models\User;
 use Illuminate\Validation\ValidationException;
 use Illuminate\Http\JsonResponse;
@@ -38,11 +39,21 @@ class LoginController extends Controller
         // 5. Buat token baru
         $token = $user->createToken('auth_token')->plainTextToken;
 
-        return response()->json([
+        $response = [
             'message' => 'Login berhasil',
             'user' => $user,
-            'token' => $token
-        ]);
+            'token' => $token,
+        ];
+
+        if ($user->role === 'admin') {
+            $response['admin_redirect_url'] = URL::temporarySignedRoute(
+                'admin.session-bridge',
+                now()->addSeconds(30),
+                ['user' => $user->id]
+            );
+        }
+
+        return response()->json($response);
     }
 
     /**

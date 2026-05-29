@@ -6,10 +6,9 @@ use App\Application\Posts\DTO\CreatePostInput;
 use App\Application\Posts\DTO\ListPostsInput;
 use App\Application\Posts\UseCases\CreatePost;
 use App\Application\Posts\UseCases\DeletePost;
-use App\Application\Posts\UseCases\GenerateWhatsAppLink;
 use App\Application\Posts\UseCases\ListOpenPosts;
 use App\Application\Posts\UseCases\RecommendPosts;
-use App\Application\Posts\UseCases\UpdatePostStatus;
+use App\Application\Posts\UseCases\UpdatePost;
 use App\Http\Controllers\Controller;
 use App\Models\Post;
 use Illuminate\Http\Request;
@@ -55,18 +54,24 @@ class PostController extends Controller
         ], 201);
     }
 
-    public function updateStatus(Request $request, Post $post, UpdatePostStatus $updatePostStatus): JsonResponse
+    public function update(Request $request, Post $post, UpdatePost $updatePost): JsonResponse
     {
         Gate::authorize('update', $post);
 
         $validated = $request->validate([
-            'status' => ['required', 'in:open,in_progress,completed'],
+            'needed_skill' => ['required', 'string', 'max:100'],
+            'offered_skill' => ['required', 'string', 'max:100'],
+            'description' => ['required', 'string', 'max:1000'],
         ]);
 
-        $post = $updatePostStatus($post, $validated['status']);
+        $post = $updatePost($post, new CreatePostInput(
+            neededSkill: $validated['needed_skill'],
+            offeredSkill: $validated['offered_skill'],
+            description: $validated['description'],
+        ));
 
         return response()->json([
-            'message' => "Status postingan diubah menjadi '{$validated['status']}'",
+            'message' => 'Tawaran berhasil diperbarui.',
             'data' => $post
         ]);
     }
