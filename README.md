@@ -14,4 +14,4 @@ The backend service for SwapSkill, providing robust API endpoints and data manag
 - **Authentication**: Laravel Sanctum
 - **Performance**: Laravel Octane
 
-Copyright build dari nama saya Fredy Fajar Adi Putra
+Copyright &copy; 2026 Fredy Fajar Adi Putra. All Rights Reserved.
